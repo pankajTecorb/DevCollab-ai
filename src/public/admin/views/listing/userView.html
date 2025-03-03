@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin | Bankit</title>
+    <link rel="icon" href="../../admin/assets/img/trucklogo.png" type="image">
+
+    <link rel="stylesheet" href="../../admin/assets/paginate/bs-pagination.min.css">
+    <script src="//code.jquery.com/jquery.min.js"></script>
+    <script src="../../admin/assets/paginate/pagination.min.js"></script>
+
+    <!--<link rel="stylesheet" href="dist/pagination.min.css">-->
+    <link href="../../admin//assets/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+    <link href="../../admin/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../admin/assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="../../admin/assets/css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="../../admin/assets/css/animate.css" rel="stylesheet">
+    <link href="../../admin/assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../../admin/assets/paginate/pagination.min.css">
+
+
+    <link href="https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+    <script src="../../admin/scripts/common/pipeline.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+
+    <script src="../../admin/scripts/listing/userView.js"></script>
+    <script src="../../admin/scripts/auth/logout.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-messaging.js"></script>
+    <script src="../../admin/scripts/index/index.js"></script>
+</head>
+<style>
+    h4 {
+        font-weight: 500;
+        color: #676A6C;
+        font-size: 15px;
+        padding-top: 13px;
+        margin-bottom: 6px;
+        padding-left: 0px !important;
+    }
+
+    .newtext {
+        font-size: 13px;
+        color: #000;
+        font-weight: 600;
+        padding-top: 10px;
+    }
+
+    .imgDiv {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        float: left;
+        margin: 5px;
+    }
+
+    .imgDiv {
+        width: 100%;
+        height: 100%;
+    }
+
+    .container {
+        margin: 100px auto;
+    }
+
+    .box,
+    .show {
+        margin: 20px auto;
+        text-align: center;
+    }
+
+    .show {
+        padding: 10px 0;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    .show {
+        display: block;
+    }
+
+    .table-dropdown .show {
+        margin: 0px !important;
+        text-align: left !important;
+        padding: 0px !important;
+    }
+
+    .table-dropdown .dropdown .dropdown-toggle {
+        padding: 0 !important;
+    }
+
+    .table-dropdown .dropdown .dropdown-toggle::after {
+        display: none;
+    }
+
+    input::placeholder {
+        padding-left: 8px !important;
+    }
+
+    @media only screen and (max-width: 992px) {
+        .lastline {
+            margin: 0px !important;
+            display: inline-block !important;
+        }
+
+    }
+</style>
+
+<body onload="userDetails(),clientDetail()">
+    <div id="wrapper" style="display: none;">
+        <navbar></navbar>
+        <div id="page-wrapper" class="gray-bg">
+            <div class="row border-bottom">
+                <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
+                    <div class="navbar-header">
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i
+                                class="fa fa-bars"></i> </a>
+                        <form role="search" class="navbar-form-custom" action="search_results.html">
+                        </form>
+                    </div>
+                    <ul class="nav navbar-top-links navbar-right">
+                        <li>
+                            <span class="m-r-sm text-muted welcome-message">Welcome to Bankit App Admin </span>
+                        </li>
+
+                        <li><a class="dropdown-item" onclick="logout()">Logout</a></li>
+                    </ul>
+
+                </nav>
+            </div>
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-12">
+                    <h2><strong>Profile</strong></h2>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="dashboard">Home</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            <strong> Profile Detail </strong>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            <div class="wrapper wrapper-content animated fadeInRight">
+                <div class="row">
+                    <div class="col-lg-5">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <h5>Basic Detail</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <div class="row" href="">
+                                    <div class="col-lg-6">
+                                        <div class="text-center">
+                                            <img alt="image" class="rounded-circle m-t-xs img-fluid" id="blah"
+                                                src="../../admin/assets/img/emptyphoto.png" style="height:150px ; width:150px;">
+                                            <!-- <div class="m-t-xs font-bold">#<span>59</span></div> -->
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6" style="padding-left: 0px;">
+                                        <h4>Name: <span class="newtext" id="name"></span>
+                                        </h4>
+                                        <h4> Busines Name: <span class="newtext" id="businessName"></span>
+                                        </h4>
+                                        <h4>Email: <span class="newtext" id="email"></span>
+                                        </h4>
+                                        <h4>Mobile: <span class="newtext" id="mobile"></span>
+                                        </h4>
+                                        <!-- <h4>GST No: <span class="newtext" id="gst"></span>
+                                        </h4> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <h5>Reports/Ticket</h5>
+                            </div>
+                            <div class="ibox-content" style="min-height: 191px;">
+                                <h4>Pending Issue:  <span class="newtext" id="pendingIssue"></span>
+                                </h4>
+                                <h4>Resolved Issue:  <span class="newtext" id="resolvedIssue"></span>
+                                </h4>
+                                <!-- <h4>Closed Issue: 0<span class="newtext" id="I_closed"></span>
+                                </h4> -->
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <h5>Trips</h5>
+                            </div>
+                            <div class="ibox-content" style="min-height: 191px;">
+                                <h4> Completed:  <span class="newtext" id="tripcomplete"></span>
+                                </h4>
+                                <h4> Pending:  <span class="newtext" id="trippending"></span>
+                                </h4>
+                                <h4> Cancelled: <span class="newtext" id="tripcancel"></span>
+                                </h4>
+                                <h4> Ongoing: <span class="newtext" id="tripongoing"></span>
+                                </h4>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+
+                        <div class="ibox" id="ibox1">
+                            <div class="tabs-container">
+                                <ul class="nav nav-tabs">
+
+                                    <li class="active"><a data-toggle="tab" onclick="clientDetail()" href="#tab-1">
+                                            Trip</a></li>
+                                    <li class=""><a data-toggle="tab" onclick="scoreDetail()" href="#tab-2">Credit
+                                            Score</a></li>
+                                    <li class=""><a data-toggle="tab" onclick="issueDetail()" href="#tab-3"> Issue</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+
+                                    <div id="tab-1" class="tab-pane active">
+
+                                        <div class="panel-body">
+
+                                            <div class="table-responsive">
+                                                <table class="table table-hover" style="margin-bottom: 6rem;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th><strong>S.No.</strong></th>
+                                                            <th><strong>ID</strong></th>
+                                                            <th><strong>Picup Address</strong></th>
+                                                            <th><strong>Delivery Address</strong></th>
+                                                            <th><strong>Container Length</strong></th>
+                                                            <th><strong>Category</strong></th>
+                                                            <th><strong>Time</strong></th>
+                                                            <th><strong>Date</strong></th>
+                                                            <th><strong>Booking <br>Status</strong></th>
+                                                            <!-- <th><strong>Action</strong></th> -->
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tripTable">
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="box" id="page1">
+                                                <ul id="example-1" class="pagination"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-2" class="tab-pane">
+                                        <div class="panel-body">
+
+                                            <div class="table-responsive">
+                                                <table class="table table-hover" style="margin-bottom: 6rem;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th><strong>S.No</strong></th>
+                                                            <th><strong>Id</strong></th>
+                                                            <th><strong>Name</strong></th>
+                                                            <th><strong>Email</strong><br><strong>Contact No.</strong></th>
+                                                            <th><strong>Credit Score</strong></th>
+                                                            <th><strong>Date</strong></th>
+                                                            <!-- <th><strong>Action</strong></th> -->
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="creditTable">
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="tab-3" class="tab-pane">
+                                        <div class="panel-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover" style="margin-bottom: 6rem;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th><strong>S.No</strong></th>
+                                                            <th><strong>Issue ID</strong></th>
+                                                            <!-- <th><strong>Trip ID</strong></th> -->
+                                                            <th><strong>Title</strong></th>
+                                                            <th><strong>Description</strong></th>
+                                                            <th><strong>Status</strong></th>
+                                                            <th><strong>Role</strong></th>
+                                                            <!-- <th><strong>Action</strong></th> -->
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="issueTable">
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="box" id="page2">
+                                                <ul id="example-2" class="pagination"></ul>
+                                            </div>
+                                        </div>
+                                       
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <footer></footer>
+
+        </div>
+    </div>
+
+
+    <!-- Mainly scripts -->
+    <script src="../../admin/assets/js/jquery-3.1.1.min.js"></script>
+    <script src="../../admin/assets/js/popper.min.js"></script>
+    <script src="../../admin/assets/js/bootstrap.js"></script>
+    <script src="../../admin/assets/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="../../admin/assets/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <!-- Peity -->
+    <script src="../../admin/assets/js/plugins/peity/jquery.peity.min.js"></script>
+    <!-- Custom and plugin javascript -->
+    <script src="assets/js/inspinia.js"></script>
+    <script src="assets/js/plugins/pace/pace.min.js"></script>
+    <script type="text/javascript" src="../../admin/assets/paginate/pagination.min.js"></script>
+    <!-- Peity -->
+    <script src="../../admin/assets/js/demo/peity-demo.js"></script>
+    <script type="text/javascript" src="../../admin/assets/paginate/pagination.min.js"></script>
+    <script src="assets/js/plugins/sweetalert/sweetalert.min.js"></script>
+    <script>
+        var token = localStorage.getItem("token");
+        var host = window.location.protocol + "//" + window.location.host;
+        if (!token) {
+            localStorage.removeItem("name");
+            localStorage.removeItem("token");
+            window.location.replace('/login');
+        }
+
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin | Bankit</title>
+    <link rel="icon" href="../../admin/assets/img/trucklogo.png" type="image">
+
+    <!-- <link rel="stylesheet" href="../../admin/assets/paginate/bs-pagination.min.css"> -->
+    <!-- <script src="https//code.jquery.com/jquery.min.js"></script> -->
+    <script src="../admin/assets/paginate/pagination.min.js"></script>
+
+    <!--<link rel="stylesheet" href="dist/pagination.min.css">-->
+    <link href="../../admin../../admin//assets/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+    <link href="../../admin/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../admin/assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="../../admin/assets/css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="../../admin/assets/css/animate.css" rel="stylesheet">
+    <link href="../../admin/assets/css/style.css" rel="stylesheet">
+    <!-- <link rel="stylesheet" type="text/css" href="../../admin/assets/paginate/pagination.min.css"> -->
+    <link href="../../admin/assets/css/plugins/c3/c3.min.css" rel="stylesheet">
+
+    <link href="https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+    <script src="../admin/scripts/common/pipeline.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script src="../../admin/scripts/auth/logout.js"></script>
+    <script src="../../admin/scripts/dashboard.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-messaging.js"></script>
+    <script src="../admin/scripts/index/index.js"></script>
+    <style>
+        .center {
+            margin: auto;
+            width: 60%;
+            padding: 10px;
+        }
+
+        .ibox-title1 {
+            background-color: #006699;
+            border-color: #0000FF;
+            border-image: none;
+            border-style: solid solid none;
+            border-width: 1px;
+            color: #FFFFFF;
+            margin-bottom: 0;
+            padding: 15px 20px 20px 20px;
+            min-height: 48px;
+            position: relative;
+            clear: both;
+            -webkit-border-radius: 3px 3px 0 0;
+            -moz-border-radius: 3px 3px 0 0;
+            border-radius: 2px 2px 0 0;
+            text-align: center
+        }
+
+        .ibox-content1 {
+            background-color: #FFFFFF;
+            color: inherit;
+            padding: 15px 20px 20px 20px;
+            ;
+            border-color: #0000FF;
+            border-image: none;
+            border-style: solid;
+            border-width: 1px;
+            text-align: center
+        }
+
+        @media only screen and (max-device-width:992px),
+        screen and (max-width:992px) {
+            .lastline {
+                margin: 0px !important;
+                width: 100% !important;
+                display: inline-block !important;
+            }
+        }
+    </style>
+</head>
+
+<body onload="Details(),categoryWiseVendor() ,mainGraph()">
+
+    <div id="wrapper" style="display: none;">
+        <navbar></navbar>
+
+        <div id="page-wrapper" class="gray-bg">
+            <div class="row border-bottom">
+                <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
+                    <div class="navbar-header">
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i
+                                class="fa fa-bars"></i> </a>
+                        <form role="search" class="navbar-form-custom" action="search_results.html">
+                        </form>
+                    </div>
+                    <ul class="nav navbar-top-links navbar-right">
+                        <li>
+                            <span class="m-r-sm text-muted welcome-message">Welcome to Bankit APP Admin </span>
+                        </li>
+
+                        <li><a class="dropdown-item" onclick="logout()">Logout</a></li>
+                    </ul>
+
+                </nav>
+            </div>
+            <div class="wrapper wrapper-content">
+                <div class="row">
+
+                    <div class="col">
+                        <a href="user">
+                            <div class="ibox ">
+                                <div class="ibox-title1">
+                                    <h5>Users</h5>
+                                </div>
+                                <div class="ibox-content1">
+                                    <h1 class="no-margins" id="user"></h1>
+                                    <small> Total Users<span style="float: right;" id="user"></span></small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col">
+                        <a href="vendor">
+                            <div class="ibox">
+                                <div class="ibox-title1">
+                                    <h5>Vendors</h5>
+                                </div>
+                                <div class="ibox-content1">
+                                    <h1 class="no-margins" id="vendor"></h1>
+                                    <small>Total Vendors <span style="float: right;" id="vendor"></span></small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="#">
+                            <div class="ibox ">
+                                <div class="ibox-title1">
+                                    <h5>Bookings</h5>
+                                </div>
+                                <div class="ibox-content1">
+                                    <h1 class="no-margins" id="BookingComplete"></h1>
+                                    <small>Open Bookings<span style="float: right;" id="application"></span></small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="#">
+                            <div class="ibox ">
+                                <div class="ibox-title1">
+                                    <h5>Bookings</h5>
+                                </div>
+                                <div class="ibox-content1">
+                                    <h1 class="no-margins" id="BookingInProgress"></h1>
+                                    <small>In Progress <span style="float: right;" id="vendor_sub"></span></small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="ibox ">
+                            <div class="ibox-title">
+                                <h5>Appointments</h5>
+                                <div class="float-right">
+                                    <div class="btn-group">
+                                        <!-- <button type="button" class="btn btn-xs btn-white ">Today</button> -->
+                                        <button type="button" id="month" class="btn btn-xs btn-white active"
+                                            onclick="selectMonth()">Monthly</button>
+                                        <button type="button" id="year" class="btn btn-xs btn-white"
+                                            onclick="selectYear()">Annual</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ibox-content">
+                                <div class="row">
+                                    <div class="col-lg-9">
+                                        <div class="flot-chart">
+                                            <div class="flot-chart-content" id="flot-dashboard-chart"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <ul class="stat-list">
+                                            <li>
+                                                <h2 class="no-margins" id="totalBooking"></h2>
+                                                <small>Total Bookings In This Period</small>
+                                                <div class="stat-percent">48% </div>
+                                                <div class="progress progress-mini">
+                                                    <div style="width: 60%;" class="progress-bar"></div>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <h2 class="no-margins" id="totalComplete"></h2>
+                                                <small>Total Complete In This Period</small>
+                                                <div class="stat-percent">60%</div>
+                                                <div class="progress progress-mini">
+                                                    <div style="width: 48%;" class="progress-bar"></div>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <h2 class="no-margins" id="totalCancel"></h2>
+                                                <small>Total Cancel In This Period</small>
+                                                <div class="stat-percent">22%</div>
+                                                <div class="progress progress-mini">
+                                                    <div style="width: 22%;" class="progress-bar"></div>
+                                                </div>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="ibox ">
+                            <div class="ibox-title">
+                                <h5>Category-wise Bookings</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <div>
+                                    <div id="pie"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="ibox ">
+                            <div class="ibox-title">
+                                <h5>Waiting For Quotations</h5>
+                            </div>
+                            <div class="ibox-content table-responsive">
+                                <table class="table table-hover no-margins">
+                                    <thead>
+                                        <tr>
+                                            <th><strong>Request ID</strong></th>
+                                            <th><strong>Vendor</strong>
+                                            <th><strong>Address</strong></th>
+                                            <th><strong>Vehicles</strong><br><strong>Length</strong></th>
+                                            <th><strong>Time | Date</strong></th>
+                                            <th><strong>View</strong></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id='tableWaitingQuotation'>
+                                    </tbody>
+
+                                </table>
+                                <h4>10 Latest Waiting Quotations</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="ibox ">
+                            <div class="ibox-title">
+                                <h5>New Quotations</h5>
+                            </div>
+                            <div class="ibox-content table-responsive">
+                                <table class="table table-hover no-margins">
+                                    <thead>
+                                        <tr>
+                                            <th><strong>S.No.</strong></th>
+                                            <th><strong>Vendor</strong></th>
+                                            <th><strong>Request ID</strong></th>
+                                            <th><strong>Amount(Rs.)</strong></th>
+                                            <th><strong>View</strong></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id='tableQuotation'>
+                                    </tbody>
+                                </table>
+                                <h4>10 Latest New Quotations</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="ibox ">
+                            <div class="ibox-title">
+                                <h5>New Customers</h5>
+
+                            </div>
+                            <div class="ibox-content table-responsive">
+                                <table class="table table-hover no-margins">
+                                    <thead>
+                                        <tr>
+                                            <th><strong>ID</strong></th>
+                                            <th><strong>Customer Name</strong></th>
+                                            <th><strong>Join Date</strong></th>
+                                            <th><strong>Requests</strong></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id='tableCustomer'>
+                                    </tbody>
+                                </table>
+                                <h4>10 Latest New Customer </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="ibox ">
+                            <div class="ibox-title">
+                                <h5>New Vendors</h5>
+
+                            </div>
+                            <div class="ibox-content table-responsive">
+                                <table class="table table-hover no-margins">
+                                    <thead>
+                                        <tr>
+                                            <th><strong>Date</strong></th>
+                                            <th><strong>Vendor Name</strong></th>
+                                            <th><strong>Quoted</strong></th>
+                                            <th><strong>Resources</strong></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableVendor">
+                                    </tbody>
+                                </table>
+                                <h4>10 Latest New Vendor </h4>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <footer></footer>
+        </div>
+
+    </div>
+
+
+    <script src="assets/js/jquery-3.1.1.min.js"></script>
+    <script src="assets/js/popper.min.js"></script>
+    <script src="assets/js/bootstrap.js"></script>
+    <script src="assets/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="assets/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <!-- CHARTJS -->
+    <script src="../admin/assets/js/plugins/chartJs/Chart.min.js"></script>
+    <!-- <script src="../js/demo/chartjs-demo.js"></script> -->
+    <!-- Flot -->
+    <script src="assets/js/plugins/flot/jquery.flot.js"></script>
+    <script src="assets/js/plugins/flot/jquery.flot.tooltip.min.js"></script>
+    <script src="assets/js/plugins/flot/jquery.flot.spline.js"></script>
+    <script src="assets/js/plugins/flot/jquery.flot.resize.js"></script>
+    <script src="assets/js/plugins/flot/jquery.flot.pie.js"></script>
+    <script src="assets/js/plugins/flot/jquery.flot.symbol.js"></script>
+    <script src="assets/js/plugins/flot/jquery.flot.time.js"></script>
+
+    <!-- Peity -->
+    <script src="assets/js/plugins/peity/jquery.peity.min.js"></script>
+    <script src="assets/js/demo/peity-demo.js"></script>
+
+    <!-- Custom and plugin javascript -->
+    <script src="assets/js/inspinia.js"></script>
+    <script src="assets/js/plugins/pace/pace.min.js"></script>
+
+    <!-- jQuery UI -->
+    <script src="assets/js/plugins/jquery-ui/jquery-ui.min.js"></script>
+
+    <!-- Jvectormap -->
+    <script src="assets/js/plugins/jvectormap/jquery-jvectormap-2.0.2.min.js"></script>
+    <script src="assets/js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+
+    <!-- EayPIE -->
+    <script src="assets/js/plugins/d3/d3.min.js"></script>
+    <script src="assets/js/plugins/c3/c3.min.js"></script>
+    <script src="assets/js/plugins/easypiechart/jquery.easypiechart.js"></script>
+
+    <!-- Sparkline -->
+    <script src="assets/js/plugins/sparkline/jquery.sparkline.min.js"></script>
+
+    <!-- Sparkline demo data  -->
+    <script src="assets/js/demo/sparkline-demo.js"></script>
+    <script>
+        var type = 'Monthly';
+        var token = localStorage.getItem("token");
+        var host = window.location.protocol + "//" + window.location.host;
+        if (!token) {
+            localStorage.removeItem("name");
+            localStorage.removeItem("token");
+            window.location.replace('/login');
+        }
+
+
+
+        function selectYear() {
+            type = 'Yearly'
+            this.mainGraph()
+            document.getElementById('year').className = "btn btn-xs btn-white active"
+            document.getElementById('month').className = "btn btn-xs btn-white"
+        }
+
+        function selectMonth() {
+            type = 'Monthly'
+            this.mainGraph()
+            document.getElementById('year').className = "btn btn-xs btn-white"
+            document.getElementById('month').className = "btn btn-xs btn-white active"
+        }
+
+        function mainGraph() {
+            $.ajax({
+                url: host + `/api/v1/admin/dashboard/graph-api?type=${type}`,
+                type: 'GET',
+                contentType: 'application/json',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', token);
+                },
+                dataType: 'json',
+                success: function (data) {
+                    document.getElementById('totalBooking').innerHTML = data.data.MonthTotal ? data.data.MonthTotal : 0;
+                    document.getElementById('totalComplete').innerHTML = data.data.MonthComplete ? data.data.MonthComplete : 0;
+                    document.getElementById('totalCancel').innerHTML = data.data.MonthCancel ? data.data.MonthCancel : 0;
+                    var TotalCount = 0;
+                    var TotalComplete = 0;
+                    var TotalCancel = 0;
+                    for (var i = 0; i < data.data.totalCount.length; i++) {
+                        TotalCount += parseInt(data.data.totalCount[i], 10); //don't forget to add the base
+                    }
+                    for (var i = 0; i < data.data.completeCount.length; i++) {
+                        TotalComplete += parseInt(data.data.completeCount[i], 10); //don't forget to add the base
+                    }
+                    for (var i = 0; i < data.data.cancelCount.length; i++) {
+                        TotalCancel += parseInt(data.data.cancelCount[i], 10); //don't forget to add the base
+                    }
+
+                    let data3 = data.data.Total.map(it => {
+                        return [gd(it[0]), it[1]]
+                    })
+
+                    let data4 = data.data.Complete.map(it => {
+                        return [gd(it[0]), it[1]]
+                    })
+
+                    let data2 = data.data.Cancel.map(it => {
+                        return [gd(it[0]), it[1]]
+                    })
+
+                    var dataset = [{
+                        label: "Total Bookings",
+                        data: data3,
+                        yaxis: 2,
+                        color: "#1ab394",
+                        lines: {
+                            lineWidth: 1,
+                            show: true,
+                            fill: true,
+                            fillColor: {
+                                colors: [{
+                                    opacity: 0.2
+                                }, {
+                                    opacity: 0.2
+                                }]
+                            }
+                        },
+                    }, {
+                        label: "Completed",
+                        data: data4,
+                        yaxis: 2,
+                        color: "#1C84C6",
+                        lines: {
+                            lineWidth: 1,
+                            show: true,
+                            fill: true,
+                            fillColor: {
+                                colors: [{
+                                    opacity: 0.2
+                                }, {
+                                    opacity: 0.2
+                                }]
+                            }
+                        },
+                        splines: {
+                            show: false,
+                            tension: 0.6,
+                            lineWidth: 1,
+                            fill: 0.1
+                        },
+                    },
+                    {
+                        label: "Cancelled",
+                        data: data2,
+                        yaxis: 2,
+                        color: "#FF0000",
+                        lines: {
+                            lineWidth: 1,
+                            show: true,
+                            fill: true,
+                            fillColor: {
+                                colors: [{
+                                    opacity: 0.2
+                                }, {
+                                    opacity: 0.2
+                                }]
+                            }
+                        },
+
+                    }];
+
+
+                    var options = {
+                        xaxis: {
+                            mode: "time",
+                            tickSize: type == 'Yearly' ? [1, "month"] : [1, "day"],
+                            tickLength: 0,
+                            axisLabel: "Date",
+                            axisLabelUseCanvas: true,
+                            axisLabelFontSizePixels: 12,
+                            axisLabelFontFamily: 'Arial',
+                            axisLabelPadding: 10,
+                            color: "#d5d5d5"
+                        },
+                        yaxes: [{
+                            position: "left",
+                            max: 1070,
+                            color: "#d5d5d5",
+                            axisLabelUseCanvas: true,
+                            axisLabelFontSizePixels: 12,
+                            axisLabelFontFamily: 'Arial',
+                            axisLabelPadding: 3
+                        }, {
+                            position: "right",
+                            clolor: "#d5d5d5",
+                            axisLabelUseCanvas: true,
+                            axisLabelFontSizePixels: 12,
+                            axisLabelFontFamily: ' Arial',
+                            axisLabelPadding: 67
+                        }],
+                        legend: {
+                            noColumns: 1,
+                            labelBoxBorderColor: "#000000",
+                            position: "nw"
+                        },
+                        grid: {
+                            hoverable: false,
+                            borderWidth: 0
+                        }
+                    };
+
+                    function gd(date) {
+                        return new Date(date).getTime();
+                    }
+
+                    var previousPoint = null,
+                        previousLabel = null;
+
+                    $.plot($("#flot-dashboard-chart"), dataset, options);
+                }
+            })
+
+            var mapData = {
+                "US": 298,
+                "SA": 200,
+                "DE": 220,
+                "FR": 540,
+                "CN": 120,
+                "AU": 760,
+                "BR": 550,
+                "IN": 200,
+                "GB": 120,
+            };
+
+        };
+    </script>
+</body>
+
+</html>
