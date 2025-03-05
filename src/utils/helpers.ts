@@ -1,6 +1,6 @@
 import axios from 'axios';
 import nodemailer from 'nodemailer'
-import moment from 'moment-timezone';
+
 
 
 
@@ -19,14 +19,6 @@ function identityGenerator(count: number, padding: string) {
 
 
 
-function getEpochAfterNMinutes(n: any) {
-    if (n == 0) {
-        return Math.round(moment.utc().valueOf() / 1000)
-    } else {
-        const time: any = moment.utc().add(n, 'minutes')
-        return Math.round(time / 1000)
-    }
-}
 
 function randomString(length: number, chars: string) {
     var mask = '';
@@ -175,7 +167,6 @@ function generatePassword(length:number) {
 
 export {
     identityGenerator,
-    getEpochAfterNMinutes,
     randomString,
     numberFormatter,
     generatePassword,
