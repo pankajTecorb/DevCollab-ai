@@ -36,23 +36,23 @@ router.post(p.login, schemaValidator(loginSchema), async (req: Request, res: Res
     return res.status(OK).send({ ...data, code: OK })
 });
 //***********Details******** */
-router.get(p.details,verifyAuthToken, checkRole(['Admin']),async (req: any, res: Response) => {
+router.get(p.details,verifyAuthToken, checkRole(['Admin','user']),async (req: any, res: Response) => {
     const data = await authController.adminGetDetails(req.user.id);
     return res.status(OK).send({ ...data, code: OK })
 });
 //**********Change Password*********** */
-router.patch(p.changePassword, verifyAuthToken, checkRole(['Admin']), schemaValidator(changePasswordSchema), async (req: any, res: Response) => {
+router.patch(p.changePassword, verifyAuthToken, checkRole(['Admin','user']), schemaValidator(changePasswordSchema), async (req: any, res: Response) => {
     const data = await authController.changePassword(req.body, req.user.id);
     return res.status(OK).send({ ...data, code: OK })
 });
 
 //**********Update Profile*********** */
-router.patch(p.update, verifyAuthToken, checkRole(['Admin']), schemaValidator(updateSchema), async (req: any, res: Response) => {
+router.patch(p.update, verifyAuthToken, checkRole(['Admin','user']), schemaValidator(updateSchema), async (req: any, res: Response) => {
     const data = await authController.updateProfile(req.body, req.user.id);
     return res.status(OK).send({ ...data, code: OK })
 });
 //**********Log Out*********** */
-router.get(p.logout, verifyAuthToken, checkRole(['Admin']), async (req: any, res: Response) => {
+router.get(p.logout, verifyAuthToken, checkRole(['Admin','user']), async (req: any, res: Response) => {
     const data = await authController.logOut(req.user.id);
     return res.status(OK).send({ ...data, code: OK })
 });

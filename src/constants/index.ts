@@ -27,6 +27,7 @@ export const errors = {
         "accountUnverifiedAdmin": "Your Account is unverified, please contact Admin",
         "emptyBody":"Empty body ! Please provide value inside body",
         "projectExist":"Project exist with this  Name:{{name}}! Please try other name",
+        "noQuery":"Please type something to get response",
     }
 }
 

@@ -1,4 +1,4 @@
-import { adminModel } from '@models/index';
+import { adminModel, userModel, userSessionModel } from '@models/index';
 import { CustomError } from '@utils/errors';
 import StatusCodes from 'http-status-codes';
 import bcrypt from 'bcrypt';
@@ -39,35 +39,57 @@ function registerAdmin(admin: any): Promise<void> {
 function login(body: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const { email, password, fcmToken } = body;
-            const adminData: any = await adminModel.findOne({
-                email, isDelete: false
-            })
-            if (!adminData) {
-                reject(new CustomError((errors.en.noSuchAccount.replace('{{email}}', email)), StatusCodes.BAD_REQUEST))
+            const { email, password } = body;
+            // Check if email exists in Admin or User collection
+            let user: any = await adminModel.findOne({ email, isDelete: false }).lean();
+            if (!user) {
+                user = await userModel.findOne({ email, isDelete: false }).lean();
             }
-            var match = bcrypt.compareSync(password, adminData.password);
+            if (!user) {
+                throw new CustomError((errors.en.noSuchAccount.replace('{{email}}', email)), StatusCodes.BAD_REQUEST);
+            }
+            // const adminData: any = await adminModel.findOne({
+            //     email, isDelete: false
+            // })
+            // if (!adminData) {
+            //     reject(new CustomError((errors.en.noSuchAccount.replace('{{email}}', email)), StatusCodes.BAD_REQUEST))
+            // }
+            var match = bcrypt.compareSync(password, user.password);
             if (match == false) {
                 reject(new CustomError(errors.en.WrongPassword, StatusCodes.BAD_REQUEST))
             } else {
                 const token: string = jwt.sign({
-                    id: adminData.id,
-                    role: 'Admin'
+                    id: user._id,
+                    role: user.role
                 }, process.env.JWT_SECRET_TOKEN, { expiresIn: '30d' })
-                adminData.set({ token: token });
-                await adminData.save();
-                if (fcmToken && fcmToken != "") {
-                    let oldTokens = adminData?.fcmTokens ? adminData.fcmTokens : []
-                    oldTokens.push(fcmToken)
-                    adminData.set({ fcmTokens: oldTokens })
-                    adminData.save()
+                if (user.role == 'Admin') {
+                    await adminModel.updateOne({ _id: user._id }, { token: token });
+                    user.token = token
+                    // Remove sensitive fields before returning response
+                    user.password = undefined;
+                    user.isDelete = undefined;
+                    user.updatedAt = undefined;
+                    resolve(user)
+                } else {
+                    const sessionObj = {
+                        role: user.role,
+                        jwtToken: token,
+                        userId: user._id
+                    }
+                   await userSessionModel.updateOne({userId:user._id},sessionObj,{ upsert: true, new: true } )
+                  resolve({
+                        token,
+                        name: user.name,
+                        image: user?.image,
+                        email: user.email,
+                        role: user?.role,
+                        designation:user?.designation,
+                        countryCode: user?.countryCode,
+                        phoneNumber: user?.phoneNumber,
+                        _id: user._id
+                    })
                 }
-                adminData._doc.password = undefined
-                adminData._doc.isDelete = undefined
-                adminData._doc.updatedAt = undefined
-                resolve(adminData._doc)
             }
-
         } catch (err) {
             reject(err)
         }
@@ -84,8 +106,23 @@ function login(body: any): Promise<any> {
 function changePassword(body: any, adminId: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const { password, newPassword } = body;
+            const { password, newPassword ,role='user'} = body;
             const newPass = bcrypt.hashSync(newPassword, 10);
+            if(role=='user'){
+                const userData: any = await userModel.findOne({ _id: adminId })
+                if (userData) {
+                    const isMatch = await bcrypt.compare(password, userData.password);
+                    if (isMatch) {
+                        await userModel.updateOne({ _id: userData._id }, { password: newPass}, { new: true })
+                        await userSessionModel.deleteMany({userId:userData._id})
+                        resolve({ status: true })
+                    } else {
+                        reject(new CustomError(errors.en.incorrectOldPass, StatusCodes.BAD_REQUEST))
+                    }
+                } else {
+                    reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
+                }   
+            }
             const admin: any = await adminModel.findOne({ _id: adminId })
             if (admin) {
                 const isMatch = await bcrypt.compare(password, admin.password);
@@ -117,12 +154,24 @@ function changePassword(body: any, adminId: string): Promise<any> {
 function updateProfile(body: any, adminId: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const admin: any = await adminModel.findOne({ _id: adminId })
-            if (admin) {
-                const updateData = await adminModel.updateOne({ _id: admin._id }, body)
-                resolve(updateData)
+            if (body.role == "Admin") {
+                const admin: any = await adminModel.findOne({ _id: adminId })
+                if (admin) {
+                    const updateData = await adminModel.updateOne({ _id: admin._id }, body)
+                    resolve(updateData)
+                } else {
+                    reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
+                }
+            } else if (body.role == "user") {
+                const userData: any = await userModel.findOne({ _id: adminId, isDelete: false }).lean()
+                if (userData) {
+                    const updateData = await userModel.updateOne({ _id: adminId }, body)
+                    resolve(updateData)
+                } else {
+                    reject(new CustomError(errors.en.noDatafound, StatusCodes.UNAUTHORIZED))
+                }
             } else {
-                reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
+                reject(new CustomError(errors.en.noDatafound, StatusCodes.UNAUTHORIZED))
             }
         } catch (err) {
             console.log(err)
@@ -142,7 +191,7 @@ function adminGetDetails(adminId: string): Promise<any> {
         try {
             const adminData: any = await adminModel.findOne({ _id: adminId }).lean()
             if (adminData) {
-                adminData.password=undefined
+                adminData.password = undefined
                 resolve(adminData)
             } else {
                 reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
@@ -166,7 +215,7 @@ function logOut(adminId: string): Promise<any> {
         try {
             const admin: any = await adminModel.findOne({ _id: adminId })
             if (admin) {
-                const updateData = await adminModel.updateOne({ _id: admin._id }, {$unset: { token: 1 } }, { new: true })
+                const updateData = await adminModel.updateOne({ _id: admin._id }, { $unset: { token: 1 } }, { new: true })
                 resolve(updateData)
             } else {
                 reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
