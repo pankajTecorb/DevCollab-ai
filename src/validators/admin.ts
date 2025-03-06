@@ -84,7 +84,7 @@ const projectSchema = Joi.object({
         .max(50)
         .required(),
     description: Joi.string(),
-    //role:Joi.string().required()
+    role:Joi.string().required()
 })
 
 

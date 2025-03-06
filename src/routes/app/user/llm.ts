@@ -21,7 +21,7 @@ export const p = {
  */
 router.post(p.llmchat,verifyAuthToken, checkRole(['user','Admin']), async (req: any, res: Response) => {
     const data = await llmController.groqChat(req.body,req.user.id);
-    return res.status(OK).send({ data, code: OK});
+    return res.status(OK).send({ data, code: CREATED});
 });
 
 /**

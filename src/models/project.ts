@@ -2,16 +2,22 @@ import { Schema, model } from 'mongoose';
 
 
 interface Project {
+    userId:string;
     name: string;
     description: string;
+    role:string;
+    members:[];
     isActive: boolean;
     isDelete: boolean;
 
 }
 
 const schema = new Schema<Project>({
-    name: { type: String, required: true, unique: true },
+    userId: { type: String, required: true },
+    name: { type: String, required: true },
     description: { type: String },
+    role: { type: String },
+    members: [{}],
     isActive: { type: Boolean, default: true },
     isDelete: { type: Boolean, default: false },
 

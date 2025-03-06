@@ -7,6 +7,7 @@ interface ChatMessage {
     response:string;
     date:string;
     time:string;
+    modelType:string;
     role:string;
     isActive: boolean;
     isDelete: boolean;
@@ -19,6 +20,7 @@ const schema = new Schema<ChatMessage>({
     response: { type: String },
     date:{ type: String },
     time:{ type: String },
+    modelType:{type: String },
     role:{ type: String , default:"user" },
     isActive: { type: Boolean, default: true },
     isDelete: { type: Boolean, default: false },

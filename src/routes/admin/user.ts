@@ -28,7 +28,7 @@ export const p = {
  */
 router.post(p.register, verifyAuthToken,checkRole(['Admin']),schemaValidator(userSchema), async (req: Request, res: Response) => {
     const data = await userController.registerUser(req.body);
-    return res.status(CREATED).send({ data });
+    return res.status(CREATED).send({ data,code:CREATED });
 });
 //***********Update******** */
 router.patch(p.update,verifyAuthToken,checkRole(['Admin']), schemaValidator(userSchema), async (req: Request, res: Response) => {
@@ -54,7 +54,7 @@ router.patch(p.statusUser, verifyAuthToken, checkRole(['Admin']), async (req: an
 //**********List of User *********** */
 router.get(p.list, verifyAuthToken, checkRole(['Admin']), async (req: any, res: Response) => {
     const data = await userController.adminUserList(req.query , req.user.id);
-    return res.status(OK).send({ ...data, code: OK })
+    return res.status(OK).send({ data, code: OK })
 });
 
 // Export default

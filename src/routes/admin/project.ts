@@ -26,35 +26,35 @@ export const p = {
 /**
  * User Registor
  */
-router.post(p.register, verifyAuthToken,checkRole(['Admin']),schemaValidator(projectSchema), async (req: Request, res: Response) => {
-    const data = await projectController.registerProject(req.body);
-    return res.status(CREATED).send({ data });
+router.post(p.register, verifyAuthToken,checkRole(['Admin','user']),schemaValidator(projectSchema), async (req: any, res: Response) => {
+    const data = await projectController.registerProject(req.body,req.user.id);
+    return res.status(CREATED).send({ data ,code:CREATED});
 });
 //***********Update******** */
-router.patch(p.update,verifyAuthToken,checkRole(['Admin']), schemaValidator(projectSchema), async (req: Request, res: Response) => {
+router.patch(p.update,verifyAuthToken,checkRole(['Admin','user']), schemaValidator(projectSchema), async (req: Request, res: Response) => {
     const data = await projectController.updateProject(req.body,req.params.id);
-    return res.status(OK).send({ ...data, code: OK })
+    return res.status(OK).send({data, code: OK })
 });
 //***********Details******** */
-router.get(p.details,verifyAuthToken,checkRole(['Admin']), async (req: Request, res: Response) => {
+router.get(p.details,verifyAuthToken,checkRole(['Admin','user']), async (req: Request, res: Response) => {
     const data = await projectController.adminProjectDetail(req.params.id);
-    return res.status(OK).send({ ...data, code: OK })
+    return res.status(OK).send({ data, code: OK })
 });
 //**********Delete User Password*********** */
-router.get(p.deleteUser, verifyAuthToken, checkRole(['Admin']), async (req: any, res: Response) => {
+router.get(p.deleteUser, verifyAuthToken, checkRole(['Admin','user']), async (req: any, res: Response) => {
     const data = await projectController.adminDeleteProject(req.params.id);
-    return res.status(OK).send({ ...data, code: OK })
+    return res.status(OK).send({data, code: OK })
 });
 
 //**********Status Change *********** */
-router.patch(p.statusUser, verifyAuthToken, checkRole(['Admin']), async (req: any, res: Response) => {
+router.patch(p.statusUser, verifyAuthToken, checkRole(['Admin','user']), async (req: any, res: Response) => {
     const data = await projectController.adminProjectStatus(req.body, req.params.id);
-    return res.status(OK).send({ ...data, code: OK })
+    return res.status(OK).send({ data, code: OK })
 });
 //**********List of User *********** */
-router.get(p.list, verifyAuthToken, checkRole(['Admin']), async (req: any, res: Response) => {
+router.get(p.list, verifyAuthToken, checkRole(['Admin','user']), async (req: any, res: Response) => {
     const data = await projectController.adminProjectList(req.query , req.user.id);
-    return res.status(OK).send({ ...data, code: OK })
+    return res.status(OK).send({data, code: OK })
 });
 
 // Export default

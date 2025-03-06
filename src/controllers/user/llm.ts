@@ -12,21 +12,68 @@ import dayjs from "dayjs";
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 
-const memory = new BufferMemory(); // Stores message history
+//const memory = new BufferMemory(); // Stores message history
 
 // Initialize Groq model
-const chatModel = new ChatGroq({
-    apiKey: process.env.GROQ_API_KEY, // Get your Groq API Key
-    modelName: "llama-3.3-70b-versatile",  // Select Groq Model
-    maxTokens: 500
-});
+// const chatModel = new ChatGroq({
+//     apiKey: process.env.GROQ_API_KEY, // Get your Groq API Key
+//     modelName: "llama-3.3-70b-versatile",  // Select Groq Model
+//     maxTokens: 500
+// });
 
 // LangChain conversation setup
-const chain = new ConversationChain({
-    llm: chatModel,
-    memory: memory, // Maintain conversation history
-});
+// const chain = new ConversationChain({
+//     llm: chatModel,
+//     memory: memory, // Maintain conversation history
+// });
+// const memory = new BufferMemory({
+//     memoryKey: "history", // Stores chat history
+//     returnMessages: true, // Keeps messages as objects instead of plain text
+//   });
 
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+
+// const prompt = ChatPromptTemplate.fromMessages([
+//   ["system", "You are a world class technical code writer."],
+//   ["user", "{input}"],
+// ]);
+// const chain = prompt.pipe(chatModel);
+// await chain.invoke({
+//     input: "what is LangSmith?",
+//   });
+
+
+
+
+// Initialize Memory
+const memory = new BufferMemory({
+    memoryKey: "history", // Stores chat history
+    returnMessages: true, // Keeps messages as objects instead of plain text
+  });
+  
+  // Initialize the Chat Model (Groq LLM)
+  const chatModel = new ChatGroq({
+    apiKey: process.env.GROQ_API_KEY,
+    modelName: "llama-3.3-70b-versatile",
+    maxTokens: 500,
+    temperature:0.6
+  });
+  
+  // Define Prompt Template with History
+  const prompt = ChatPromptTemplate.fromMessages([
+    ["system", "You are a world-class technical code writer. Always provide clear, structured, and optimized code solutions. If the user asks for step-by-step guidance, break it down with numbered steps before showing the code."],
+    ["system", "If a question requires an example, provide a simple but effective example first, then expand if needed."],
+    ["system", "If the user asks for improvements, suggest optimizations and best practices."],
+    ["user", "{history}"],  // Load chat history
+    ["user", "{input}"],   // Current user input
+  ]);
+  
+  // Create a conversation chain with memory
+  const chain = new ConversationChain({
+    llm: chatModel,
+    prompt: prompt,
+    memory: memory, // Attach Memory
+  });
 /**
  * User chat
  * 
@@ -47,10 +94,14 @@ function groqChat(body: any, userId: string): Promise<any> {
                     } else {
                         // const response = await main(query)
                         const response = await chain.call({ input: query });
+                        // const response = await chain.invoke({
+                        //         input: query,
+                        //       });
                         const messageObj = {
                             userId: userId,
                             role:'user',
                             message: query,
+                            modelType:body.modelType,
                             response: response.response,
                             date: dayjs().format("YYYY-MM-DD"),
                             time: dayjs().format("HH:mm")
@@ -68,6 +119,7 @@ function groqChat(body: any, userId: string): Promise<any> {
                             userId: userId,
                             role:'admin',
                             message: query,
+                            modelType:body.modelType,
                             response: response.response,
                             date: dayjs().format("YYYY-MM-DD"),
                             time: dayjs().format("HH:mm")
@@ -93,10 +145,11 @@ function groqChat(body: any, userId: string): Promise<any> {
 function userChatList(query: any, userId: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const { page = 1, pageSize = 10, search, fromDate, toDate } = query;
+            const { page = 1, pageSize = 10, search, fromDate, toDate ,role='user'} = query;
             let condition: any = {
                 isDelete: false,
-                userId: userId
+                userId: userId,
+                role:role
             };
 
             if (search && search != "") {

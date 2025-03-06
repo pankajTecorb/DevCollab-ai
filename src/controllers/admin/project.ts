@@ -6,14 +6,16 @@ import { identityGenerator } from '@utils/helpers';
 
 
 /**
- * Admin registor Project
+ *  Registor Project
  * 
  * @param user 
  * @returns 
  */
-function registerProject(body: any): Promise<void> {
+function registerProject(body: any,userId:string): Promise<void> {
     return new Promise(async (resolve, reject) => {
         try {
+            body.userId=userId
+            body.role=body.role
             const response: any = await projectModel.create(body)
             resolve(response)
         } catch (err) {
@@ -27,7 +29,7 @@ function registerProject(body: any): Promise<void> {
 }
 
 /**
- * Admin Update Project
+ *  Update Project
  * 
  * @param body 
  * @returns 
@@ -36,9 +38,9 @@ function registerProject(body: any): Promise<void> {
 function updateProject(body: any, userId: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const admin: any = await projectModel.findOne({ _id: userId })
-            if (admin) {
-                const updateData = await projectModel.updateOne({ _id: admin._id }, body)
+            const proData: any = await projectModel.findOne({ _id: userId })
+            if (proData) {
+                const updateData = await projectModel.updateOne({ _id: proData._id }, body)
                 resolve(updateData)
             } else {
                 reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
@@ -50,7 +52,7 @@ function updateProject(body: any, userId: string): Promise<any> {
     });
 }
 /**
- * Admin Project Details 
+ * Project Details 
  * 
  * @param body 
  * @returns 
@@ -58,9 +60,9 @@ function updateProject(body: any, userId: string): Promise<any> {
 function adminProjectDetail(userId: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-             const admin: any = await projectModel.findOne({ _id: userId }).lean()
-                if (admin) {
-                    resolve(admin)
+             const proData: any = await projectModel.findOne({ _id: userId }).lean()
+                if (proData) {
+                    resolve(proData)
                 } else {
                     reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
                 }
@@ -72,18 +74,18 @@ function adminProjectDetail(userId: string): Promise<any> {
 }
 
 /**
- * Admin Delete Project 
+ *  Delete Project 
  * 
  * @param body 
  * @returns 
  */
 
-function adminDeleteProject(adminId: string): Promise<any> {
+function adminDeleteProject(projectId: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const admin: any = await projectModel.findOne({ _id: adminId })
-            if (admin) {
-                const updateData = await projectModel.updateOne({ _id: admin._id }, { isDelete: true }, { new: true })
+            const proData: any = await projectModel.findOne({ _id: projectId })
+            if (proData) {
+                const updateData = await projectModel.updateOne({ _id: proData._id }, { isDelete: true }, { new: true })
                 resolve(updateData)
             } else {
                 reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
@@ -96,7 +98,7 @@ function adminDeleteProject(adminId: string): Promise<any> {
 }
 
 /**
- * Admin Project Status Change
+ * Project Status Change
  * 
  * @param body 
  * @returns 
@@ -107,9 +109,9 @@ function adminProjectStatus(body: any, userId: string): Promise<any> {
             if (body.isActive == undefined) {
                 reject(new CustomError(errors.en.emptyBody, StatusCodes.BAD_REQUEST))
             } else {
-                const admin: any = await projectModel.findOne({ _id: userId })
-                if (admin) {
-                    const updateData = await projectModel.updateOne({ _id: admin._id }, { isActive: body.isActive }, { new: true })
+                const proData: any = await projectModel.findOne({ _id: userId })
+                if (proData) {
+                    const updateData = await projectModel.updateOne({ _id: proData._id }, { isActive: body.isActive }, { new: true })
                     resolve(updateData)
                 } else {
                     reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
@@ -124,7 +126,7 @@ function adminProjectStatus(body: any, userId: string): Promise<any> {
 }
 
 /**
- * Admin Project List 
+ * Project List 
  * 
  * @param query 
  * @returns 
@@ -135,6 +137,7 @@ function adminProjectList(query: any, userId: string): Promise<any> {
             const { page = 1, pageSize = 10, search, fromDate, toDate } = query;
             let condition: any = {
                 isDelete: false,
+                userId:userId
 
             };
 

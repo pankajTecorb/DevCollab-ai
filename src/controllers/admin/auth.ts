@@ -76,14 +76,14 @@ function login(body: any): Promise<any> {
                         jwtToken: token,
                         userId: user._id
                     }
-                   await userSessionModel.updateOne({userId:user._id},sessionObj,{ upsert: true, new: true } )
-                  resolve({
+                    await userSessionModel.updateOne({ userId: user._id }, sessionObj, { upsert: true, new: true })
+                    resolve({
                         token,
                         name: user.name,
                         image: user?.image,
                         email: user.email,
                         role: user?.role,
-                        designation:user?.designation,
+                        designation: user?.designation,
                         countryCode: user?.countryCode,
                         phoneNumber: user?.phoneNumber,
                         _id: user._id
@@ -106,22 +106,22 @@ function login(body: any): Promise<any> {
 function changePassword(body: any, adminId: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const { password, newPassword ,role='user'} = body;
+            const { password, newPassword, role = 'user' } = body;
             const newPass = bcrypt.hashSync(newPassword, 10);
-            if(role=='user'){
+            if (role == 'user') {
                 const userData: any = await userModel.findOne({ _id: adminId })
                 if (userData) {
                     const isMatch = await bcrypt.compare(password, userData.password);
                     if (isMatch) {
-                        await userModel.updateOne({ _id: userData._id }, { password: newPass}, { new: true })
-                        await userSessionModel.deleteMany({userId:userData._id})
+                        await userModel.updateOne({ _id: userData._id }, { password: newPass }, { new: true })
+                        await userSessionModel.deleteMany({ userId: userData._id })
                         resolve({ status: true })
                     } else {
                         reject(new CustomError(errors.en.incorrectOldPass, StatusCodes.BAD_REQUEST))
                     }
                 } else {
                     reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
-                }   
+                }
             }
             const admin: any = await adminModel.findOne({ _id: adminId })
             if (admin) {
@@ -189,13 +189,18 @@ function updateProfile(body: any, adminId: string): Promise<any> {
 function adminGetDetails(adminId: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const adminData: any = await adminModel.findOne({ _id: adminId }).lean()
-            if (adminData) {
-                adminData.password = undefined
-                resolve(adminData)
+            let user: any = await adminModel.findOne({ _id: adminId, isDelete: false }).lean();
+            if (!user) {
+                user = await userModel.findOne({ _id: adminId, isDelete: false }).lean();
+                if (!user) {
+                    throw new CustomError(errors.en.noDatafound, StatusCodes.NOT_FOUND);
+                } else {
+                    resolve(user)
+                }
             } else {
-                reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
+                resolve(user)
             }
+
         } catch (err) {
             console.log(err)
             reject(err)
@@ -210,16 +215,28 @@ function adminGetDetails(adminId: string): Promise<any> {
  * @returns 
  */
 
-function logOut(adminId: string): Promise<any> {
+function logOut(adminId: string, headers: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const admin: any = await adminModel.findOne({ _id: adminId })
-            if (admin) {
-                const updateData = await adminModel.updateOne({ _id: admin._id }, { $unset: { token: 1 } }, { new: true })
-                resolve(updateData)
+            const role = headers.role
+            if (role == "Admin") {
+                const admin: any = await adminModel.findOne({ _id: adminId })
+                if (admin) {
+                    const updateData = await adminModel.updateOne({ _id: admin._id }, { $unset: { token: 1 } }, { new: true })
+                    resolve(updateData)
+                } else {
+                    reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
+                }
             } else {
-                reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
+                const userData: any = await userModel.findOne({ _id: adminId })
+                if (userData) {
+                    const updateData = await userSessionModel.deleteOne({ userId: userData._id })
+                    resolve(updateData)
+                } else {
+                    reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
+                }
             }
+
         } catch (err) {
             console.log(err)
             reject(err)

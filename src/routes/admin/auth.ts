@@ -53,7 +53,7 @@ router.patch(p.update, verifyAuthToken, checkRole(['Admin','user']), schemaValid
 });
 //**********Log Out*********** */
 router.get(p.logout, verifyAuthToken, checkRole(['Admin','user']), async (req: any, res: Response) => {
-    const data = await authController.logOut(req.user.id);
+    const data = await authController.logOut(req.user.id,req.headers);
     return res.status(OK).send({ ...data, code: OK })
 });
 
