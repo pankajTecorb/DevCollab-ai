@@ -118,7 +118,7 @@ function groqChat(body: any, userId: string): Promise<any> {
                         const response = await chain.call({ input: query });
                         const messageObj = {
                             userId: userId,
-                            role:'admin',
+                            role:'Admin',
                             message: query,
                             projectId:projectId,
                             modelType:modelType,
@@ -173,7 +173,6 @@ function userChatList(query: any, userId: string): Promise<any> {
                     createdAt: { $gte: fromDate, $lte: toDate }
                 }
             }
-            console.log(condition,"dj")
             const response = await chatMessageModel.aggregate([
                 { $match: condition },
                 { $sort: { createdAt: -1 } },
