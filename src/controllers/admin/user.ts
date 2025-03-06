@@ -182,8 +182,16 @@ function adminUserList(query: any, userId: string): Promise<any> {
                     }
                 }
             ]);
+            const total = await userModel.aggregate([
+                { $match: condition },
+               {
+                    $project: {
+                        _id: 1, 
+                    }
+                }
+            ]);
             if (response.length>0) {
-                resolve(response)
+                resolve({response,Total:total.length})
             } else {
                 reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
             }

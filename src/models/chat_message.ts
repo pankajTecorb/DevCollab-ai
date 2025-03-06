@@ -3,6 +3,7 @@ import { Schema, model } from 'mongoose';
 
 interface ChatMessage {
     userId: string;
+    projectId:string;
     message: string;
     response:string;
     date:string;
@@ -16,6 +17,7 @@ interface ChatMessage {
 
 const schema = new Schema<ChatMessage>({
     userId: { type: String, required: true},
+    projectId:{ type: String},
     message: { type: String ,required:true},
     response: { type: String },
     date:{ type: String },

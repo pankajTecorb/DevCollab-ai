@@ -83,7 +83,7 @@ const memory = new BufferMemory({
 function groqChat(body: any, userId: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const { query ,role="user"} = body
+            const { query ,projectId,modelType,role="user"} = body
             if (!query) {
                 reject(new CustomError(errors.en.noQuery, StatusCodes.NOT_FOUND))
             } else {
@@ -101,7 +101,8 @@ function groqChat(body: any, userId: string): Promise<any> {
                             userId: userId,
                             role:'user',
                             message: query,
-                            modelType:body.modelType,
+                            projectId:projectId,
+                            modelType:modelType,
                             response: response.response,
                             date: dayjs().format("YYYY-MM-DD"),
                             time: dayjs().format("HH:mm")
@@ -119,7 +120,8 @@ function groqChat(body: any, userId: string): Promise<any> {
                             userId: userId,
                             role:'admin',
                             message: query,
-                            modelType:body.modelType,
+                            projectId:projectId,
+                            modelType:modelType,
                             response: response.response,
                             date: dayjs().format("YYYY-MM-DD"),
                             time: dayjs().format("HH:mm")
@@ -145,13 +147,18 @@ function groqChat(body: any, userId: string): Promise<any> {
 function userChatList(query: any, userId: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const { page = 1, pageSize = 10, search, fromDate, toDate ,role='user'} = query;
+            const { page = 1, pageSize = 10, search, fromDate,projectId, toDate ,role} = query;
             let condition: any = {
                 isDelete: false,
                 userId: userId,
                 role:role
             };
-
+            if (projectId && projectId != "") {
+                condition = {
+                    ...condition,
+                    projectId: projectId
+                }
+            }
             if (search && search != "") {
                 condition = {
                     ...condition,
@@ -166,6 +173,7 @@ function userChatList(query: any, userId: string): Promise<any> {
                     createdAt: { $gte: fromDate, $lte: toDate }
                 }
             }
+            console.log(condition,"dj")
             const response = await chatMessageModel.aggregate([
                 { $match: condition },
                 { $sort: { createdAt: -1 } },
@@ -177,8 +185,16 @@ function userChatList(query: any, userId: string): Promise<any> {
                     }
                 }
             ]);
+            const total = await chatMessageModel.aggregate([
+                { $match: condition },
+                {
+                    $project: {
+                        _id: 1, userId: 1,
+                    }
+                }
+            ]);
             if (response.length > 0) {
-                resolve(response)
+                resolve({response,Total:total.length})
             } else {
                 reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
             }

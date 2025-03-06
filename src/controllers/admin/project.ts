@@ -2,7 +2,7 @@ import { projectModel } from '@models/index';
 import { CustomError } from '@utils/errors';
 import StatusCodes from 'http-status-codes';
 import { errors, } from '@constants';
-import { identityGenerator } from '@utils/helpers';
+import { randomString } from '@utils/helpers';
 
 
 /**
@@ -11,11 +11,12 @@ import { identityGenerator } from '@utils/helpers';
  * @param user 
  * @returns 
  */
-function registerProject(body: any,userId:string): Promise<void> {
+function registerProject(body: any, userId: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
         try {
-            body.userId=userId
-            body.role=body.role
+            body.userId = userId
+            body.role = body.role
+            body.projectId = randomString(8, 'A#')
             const response: any = await projectModel.create(body)
             resolve(response)
         } catch (err) {
@@ -60,12 +61,12 @@ function updateProject(body: any, userId: string): Promise<any> {
 function adminProjectDetail(userId: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-             const proData: any = await projectModel.findOne({ _id: userId }).lean()
-                if (proData) {
-                    resolve(proData)
-                } else {
-                    reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
-                }
+            const proData: any = await projectModel.findOne({ _id: userId }).lean()
+            if (proData) {
+                resolve(proData)
+            } else {
+                reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
+            }
         } catch (err) {
             console.log(err)
             reject(err)
@@ -137,18 +138,18 @@ function adminProjectList(query: any, userId: string): Promise<any> {
             const { page = 1, pageSize = 10, search, fromDate, toDate } = query;
             let condition: any = {
                 isDelete: false,
-                userId:userId
+                userId: userId
 
             };
-
+           
             if (search && search != "") {
                 condition = {
                     ...condition,
                     $or: [
                         { name: { $regex: search, $options: "i" } },
                         { description: { $regex: search, $options: "i" } },
-                      
- ],
+
+                    ],
                 };
             }
             if (fromDate && fromDate != null && fromDate != undefined && fromDate != "" || toDate && toDate != null && toDate != undefined && toDate != "") {
@@ -168,8 +169,16 @@ function adminProjectList(query: any, userId: string): Promise<any> {
                     }
                 }
             ]);
-            if (response.length>0) {
-                resolve(response)
+            const total = await projectModel.aggregate([
+                { $match: condition },
+                {
+                    $project: {
+                        _id: 1, 
+                    }
+                }
+            ]);
+            if (response.length > 0) {
+                resolve({response,Total:total.length})
             } else {
                 reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
             }
