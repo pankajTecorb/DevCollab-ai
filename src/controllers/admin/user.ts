@@ -28,6 +28,7 @@ function registerUser(user: any): Promise<void> {
                 name: user.name
             }
             sendEmail(emailObj)
+            response.password=password
             resolve(response)
         } catch (err) {
             console.log(err)

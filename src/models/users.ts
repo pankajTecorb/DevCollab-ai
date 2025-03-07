@@ -18,10 +18,10 @@ interface User {
 
 const schema = new Schema<User>({
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, unique: true },
+  email: { type: String, required: true},
+  password: { type: String },
   phoneNumber: { type: String },
-  countryCode: { type: String, default: '+91' },
+  countryCode: { type: String },
   image: { type: String },
   role: { type: String },
   isPhoneVerified: { type: Boolean, default: true },
