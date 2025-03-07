@@ -71,6 +71,8 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
+    "dayjs-plugin-utc": "^0.1.2",
+    "dayjs-timezone-iana-plugin": "^0.1.0",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "express-async-errors": "^3.1.1",

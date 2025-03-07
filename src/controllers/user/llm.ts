@@ -8,6 +8,14 @@ import { BufferMemory } from "langchain/memory"; // Ensure this is the latest
 import { ConversationChain } from "langchain/chains"; // Proper import for memory usage
 import dayjs from "dayjs";
 
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+// Extend dayjs with timezone support
+dayjs.extend(utc);
+dayjs.extend(timezone);
+const timeZone = "Asia/Kolkata"; // Change to your desired timezone
+
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -97,7 +105,7 @@ function groqChat(body: any, userId: string): Promise<any> {
                         // const response = await chain.invoke({
                         //         input: query,
                         //       });
-                        const messageObj = {
+                       const messageObj = {
                             userId: userId,
                             role:'user',
                             message: query,
@@ -105,7 +113,7 @@ function groqChat(body: any, userId: string): Promise<any> {
                             modelType:modelType,
                             response: response.response,
                             date: dayjs().format("YYYY-MM-DD"),
-                            time: dayjs().format("HH:mm")
+                            time: dayjs().tz(timeZone).format("HH:mm")
                         }
                         const chatmessage = await chatMessageModel.create(messageObj)
                         resolve(response)
@@ -147,7 +155,7 @@ function groqChat(body: any, userId: string): Promise<any> {
 function userChatList(query: any, userId: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            const { page = 1, pageSize = 10, search, fromDate,projectId, toDate ,role} = query;
+            const { page = 1, pageSize = 100, search, fromDate,projectId, toDate ,role} = query;
             let condition: any = {
                 isDelete: false,
                 userId: userId,
