@@ -15,21 +15,29 @@ import { generatePassword, sendEmail } from '@utils/helpers';
 function registerUser(user: any): Promise<void> {
     return new Promise(async (resolve, reject) => {
         try {
-            const password = generatePassword(10)
-            const pass = bcrypt.hashSync(password, 10);
-            user.password = pass
-            user.role = "user"
-            const response: any = await userModel.create(user)
-            const emailObj = {
-                subject: `Welcome ${user.name}! Your Account is Ready 🎉`,
-                email: user.email,
-                password: password,
-                url: "https://devcollabllm.vercel.app/login",
-                name: user.name
+            const emails=user.email.toLowerCase().trim()
+            const userData = await userModel.findOne({email:emails , isDelete:false})
+            if(userData){
+                reject(new CustomError((errors.en.emailExist.replace('{{email}}', emails)), StatusCodes.BAD_REQUEST))
+            }else{
+                const password = generatePassword(10)
+                const pass = bcrypt.hashSync(password, 10);
+                user.password = pass
+                user.role = "user"
+                user.email=emails
+                const response: any = await userModel.create(user)
+                const emailObj = {
+                    subject: `Welcome ${user.name}! Your Account is Ready 🎉`,
+                    email: emails,
+                    password: password,
+                    url: "https://devcollabllm.vercel.app/login",
+                    name: user.name
+                }
+                sendEmail(emailObj)
+                response.password=password
+                resolve(response)
             }
-            sendEmail(emailObj)
-            response.password=password
-            resolve(response)
+          
         } catch (err) {
             console.log(err)
             if (err.code == 11000) {

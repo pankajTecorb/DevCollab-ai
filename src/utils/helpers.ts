@@ -67,7 +67,7 @@ function generatePassword(length:number) {
     return password;
   }
 
-  function sendEmail(data: any) {
+  function sendEmail(data: any) { 
     var smtpTransport = nodemailer.createTransport({
         // service: 'gmail',
         host: 'smtp.gmail.com',
@@ -81,7 +81,7 @@ function generatePassword(length:number) {
     });
     var mailOptions = {
         to: data.email,
-        from: "chatbotaitecorb@gmail.com",
+        from: `"Tecorb Technologies" <chatbotaitecorb@gmail.com>`,       //"chatbotaitecorb@gmail.com",
         subject: data.subject,
        html:`<!DOCTYPE html>
 <html>

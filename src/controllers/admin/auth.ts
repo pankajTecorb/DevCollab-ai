@@ -17,6 +17,7 @@ function registerAdmin(admin: any): Promise<void> {
         try {
             const pass = bcrypt.hashSync(admin.password, 10);
             admin.password = pass
+            admin.email = admin.email.toLowerCase().trim()
             const response: any = await adminModel.create(admin)
             resolve(response)
         } catch (err) {
@@ -48,13 +49,7 @@ function login(body: any): Promise<any> {
             if (!user) {
                 throw new CustomError((errors.en.noSuchAccount.replace('{{email}}', email)), StatusCodes.BAD_REQUEST);
             }
-            // const adminData: any = await adminModel.findOne({
-            //     email, isDelete: false
-            // })
-            // if (!adminData) {
-            //     reject(new CustomError((errors.en.noSuchAccount.replace('{{email}}', email)), StatusCodes.BAD_REQUEST))
-            // }
-            var match = bcrypt.compareSync(password, user.password);
+          var match = bcrypt.compareSync(password, user.password);
             if (match == false) {
                 reject(new CustomError(errors.en.WrongPassword, StatusCodes.BAD_REQUEST))
             } else {
