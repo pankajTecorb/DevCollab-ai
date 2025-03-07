@@ -74,6 +74,7 @@ const userSchema = Joi.object({
             'any.required': `Phone Number is a required field`
         }),
     image: Joi.string(),
+    role: Joi.string().optional(),
 
 })
 

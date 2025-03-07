@@ -175,7 +175,7 @@ function userChatList(query: any, userId: string): Promise<any> {
             }
             const response = await chatMessageModel.aggregate([
                 { $match: condition },
-                { $sort: { createdAt: -1 } },
+                { $sort: { createdAt: 1 } },
                 { $skip: Number(page - 1) * Number(pageSize) },
                 { $limit: Number(pageSize) },
                 {

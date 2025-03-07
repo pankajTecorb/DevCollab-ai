@@ -24,11 +24,10 @@ function registerUser(user: any): Promise<void> {
                 subject: `Welcome ${user.name}! Your Account is Ready 🎉`,
                 email: user.email,
                 password: password,
-                url: "url",
+                url: "https://devcollabllm.vercel.app/login",
                 name: user.name
             }
             sendEmail(emailObj)
-            response.password = undefined
             resolve(response)
         } catch (err) {
             console.log(err)
