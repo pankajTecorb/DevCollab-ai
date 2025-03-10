@@ -112,7 +112,7 @@ function groqChat(body: any, userId: string): Promise<any> {
                             projectId:projectId,
                             modelType:modelType,
                             response: response.response,
-                            date: dayjs().format("YYYY-MM-DD"),
+                            date: dayjs().tz(timeZone).format("YYYY-MM-DD"),
                             time: dayjs().tz(timeZone).format("HH:mm")
                         }
                         const chatmessage = await chatMessageModel.create(messageObj)

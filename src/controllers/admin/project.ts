@@ -3,6 +3,7 @@ import { CustomError } from '@utils/errors';
 import StatusCodes from 'http-status-codes';
 import { errors, } from '@constants';
 import { randomString } from '@utils/helpers';
+import { findOne } from '@models/admin';
 
 
 /**
@@ -14,11 +15,18 @@ import { randomString } from '@utils/helpers';
 function registerProject(body: any, userId: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
         try {
-            body.userId = userId
-            body.role = body.role
-            body.projectId = randomString(8, 'A#')
-            const response: any = await projectModel.create(body)
-            resolve(response)
+            const names = body.name.trim()
+            const projectData = await projectModel.findOne({ name: names, role: body.name, userId: userId })
+            if (projectData) {
+                reject(new CustomError((errors.en.projectExist.replace('{{name}}', body.name)), StatusCodes.BAD_REQUEST))
+            } else {
+                body.userId = userId
+                body.name = names
+                body.role = body.role
+                body.projectId = randomString(8, 'A#')
+                const response: any = await projectModel.create(body)
+                resolve(response)
+            }
         } catch (err) {
             console.log(err)
             if (err.code == 11000) {
@@ -141,7 +149,7 @@ function adminProjectList(query: any, userId: string): Promise<any> {
                 userId: userId
 
             };
-           
+
             if (search && search != "") {
                 condition = {
                     ...condition,
@@ -173,12 +181,12 @@ function adminProjectList(query: any, userId: string): Promise<any> {
                 { $match: condition },
                 {
                     $project: {
-                        _id: 1, 
+                        _id: 1,
                     }
                 }
             ]);
             if (response.length > 0) {
-                resolve({response,Total:total.length})
+                resolve({ response, Total: total.length })
             } else {
                 reject(new CustomError(errors.en.noDatafound, StatusCodes.BAD_REQUEST))
             }
