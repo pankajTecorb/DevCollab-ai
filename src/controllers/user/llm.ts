@@ -141,6 +141,14 @@ function groqChat(body: any, userId: string): Promise<any> {
                 
             }
         } catch (err) {
+            if (err?.code === "rate_limit_exceeded") {
+                console.error("Rate limit exceeded. Clearing chat history...");
+                memory.clear(); // Clears the message history
+                reject(new CustomError(errors.en.somethingwrong, StatusCodes.NOT_ACCEPTABLE))
+            } else {
+                console.error("Error:", err);
+                reject(err)
+            }
             reject(err)
         }
     });
